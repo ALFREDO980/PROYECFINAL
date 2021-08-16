@@ -29,18 +29,38 @@
 
       public function obtenerSolucion($idReporte) {
         $conexion = Conexion::conectar();
-        $sql = "SELECT solucion_problema
+        $sql = "SELECT solucion_problema, estatus
                 FROM t_reportes
                 WHERE id_reporte = '$idReporte'";
         $respuesta = mysqli_query($conexion, $sql);
-        $solucion = mysqli_fetch_array($respuesta)['solucion_problema'];
+        $reporte = mysqli_fetch_array($respuesta);
 
         $datos = array(
           "idReporte" => $idReporte,
-          "solucion" => $solucion
+          "estatus" => $reporte['estatus'],
+          "solucion" => $reporte['solucion_problema']
 
         );
         return $datos;
+      }
+
+      public function actualizarSolucion($datos) {
+          $conexion = Conexion::conectar();
+          $sql = "UPDATE t_reportes 
+                  SET id_usuario_tecnico = ?,
+                      solucion_problema = ?, 
+                      estatus = ?
+                  WHERE id_reporte = ?";
+          $query = $conexion->prepare($sql);
+          $query->bind_param('issi', $datos['idUsuario'],
+                                      $datos['solucion'],
+                                      $datos['estatus'],
+                                      $datos['idReporte']);
+          $respuesta = $query->execute();
+          $query->close();
+          return $respuesta;
+                                      
+
       }
 
     }
